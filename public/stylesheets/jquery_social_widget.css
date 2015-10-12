@@ -1,0 +1,251 @@
+/****************************
+* STYLES FOR POST CONTAINER *
+*****************************/
+#content {
+  min-height: 650px;
+  text-align: center;
+  margin: 0 auto;
+  margin-top: 80px;
+  width: 355px;
+  position: relative;
+  overflow: visible;
+  -ms-overflow-style: none; }
+
+@media screen and (min-width: 900px) {
+  #content {
+    margin-top: 0; } }
+.column {
+  float: left;
+  width: 355px; }
+
+@media screen and (min-width: 710px) {
+  #content {
+    width: 710px; } }
+@media screen and (min-width: 1065px) {
+  #content {
+    width: 1065px; } }
+@media screen and (min-width: 1420px) {
+  #content {
+    width: 1420px; } }
+/****************************
+* STYLES IF THERE ARE NO POSTS *
+*****************************/
+.no_posts {
+  outline: 1px solid white;
+  margin-top: 100px;
+  font-size: 1em;
+  color: #353430;
+  display: inline-block;
+  padding: 30px;
+  background: white;
+  box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.2); }
+
+.new_ribbon {
+  background: #A82439;
+  color: white;
+  font-size: 10px;
+  height: 20px;
+  line-height: 20px;
+  margin: 4px -10px 10px 10px;
+  padding: 0 10px 0 10px;
+  position: absolute;
+  right: 0;
+  z-index: 1; }
+  .new_ribbon:after {
+    border-color: #801B2B transparent transparent #801B2B;
+    border-style: solid;
+    border-width: 2px 5px;
+    content: ' ';
+    height: 0;
+    position: absolute;
+    right: 0px;
+    top: 100%;
+    width: 0; }
+  .new_ribbon:before {
+    border-color: #a82439 transparent;
+    border-style: solid;
+    border-width: 10px 3px;
+    content: ' ';
+    height: 0;
+    left: -3px;
+    position: absolute;
+    top: 0px;
+    width: 0; }
+
+.post_tile {
+  background: #FFF;
+  box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.2);
+  color: #353430;
+  display: inline-block;
+  margin: 10px;
+  opacity: 1;
+  padding: 0;
+  position: relative;
+  text-align: left;
+  transition: opacity .5s;
+  vertical-align: top;
+  width: 335px;
+  word-break: break-word; }
+  .post_tile .message {
+    background: white;
+    border-radius: 0px;
+    box-sizing: border-box;
+    display: table;
+    font-size: 14px;
+    line-height: 20px;
+    margin: 0;
+    padding: 18px 14px;
+    position: relative;
+    width: 100%; }
+    .post_tile .message p {
+      font-size: 14px;
+      line-height: 20px; }
+  .post_tile .avatar {
+    display: table-cell;
+    vertical-align: top;
+    width: 56px; }
+    .post_tile .avatar img {
+      border-radius: 50%; }
+  .post_tile .text {
+    display: table-cell;
+    padding-left: 14px;
+    vertical-align: top; }
+    .post_tile .text h2 {
+      font: bold 14px/20px "proxima-nova", "Helvetica Neue", "Microsoft Sans Serif", sans-serif;
+      margin: 0; }
+    .post_tile .text p {
+      margin: 0; }
+    .post_tile .text a {
+      color: #98012e; }
+  .post_tile .youtube {
+    height: 187px; }
+  .post_tile footer {
+    background: #f7f6f0;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    display: table;
+    font-size: 12px;
+    font-weight: normal;
+    height: 40px;
+    line-height: 20px;
+    padding: 0 10px;
+    vertical-align: middle;
+    width: 100%; }
+  .post_tile .author {
+    display: table-cell;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 12px;
+    margin: 0;
+    max-width: 200px;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.15);
+    vertical-align: middle; }
+    .post_tile .author a {
+      color: inherit; }
+    .post_tile .author a:hover {
+      color: #a82439; }
+    .post_tile .author a p {
+      font-size: inherit;
+      line-height: inherit;
+      margin: 0 0 0 14px; }
+    .post_tile .author svg {
+      width: 1em;
+      height: 1em;
+      display: block;
+      float: left; }
+  .post_tile .meta {
+    display: table-cell;
+    font-size: 12px;
+    line-height: 20px;
+    text-align: right;
+    vertical-align: middle; }
+    .post_tile .meta a {
+      color: #353430; }
+
+.post_tile.blog,
+.post_tile.blog_photo {
+  border-radius: 3px; }
+  .post_tile.blog .message,
+  .post_tile.blog_photo .message {
+    border-radius: 3px 3px 0 0; }
+  .post_tile.blog .message .title,
+  .post_tile.blog_photo .message .title {
+    font: bold 24px/28px "proxima-nova-soft", "Helvetica Neue", "Microsoft Sans Serif", sans-serif;
+    margin: 14px 0 10px 0; }
+    .post_tile.blog .message .title a,
+    .post_tile.blog_photo .message .title a {
+      text-decoration: none;
+      color: inherit; }
+    .post_tile.blog .message .title a:hover,
+    .post_tile.blog_photo .message .title a:hover {
+      color: #a82439; }
+  .post_tile.blog .message time,
+  .post_tile.blog_photo .message time {
+    font: regular 14px/14px 'proxima-nova-soft'; }
+  .post_tile.blog .message .tag,
+  .post_tile.blog_photo .message .tag {
+    background: #f7f6f0;
+    border-left: 5px solid #a82439;
+    border-radius: 3px;
+    color: #62605a;
+    display: inline-block;
+    font-size: 12px;
+    margin: 0 0 0 -19px;
+    padding: 3px 10px 3px 14px;
+    text-decoration: none;
+    transition: padding 0.1s ease-out; }
+    .post_tile.blog .message .tag:hover,
+    .post_tile.blog_photo .message .tag:hover {
+      background: #eceadf;
+      color: #a82439;
+      padding-left: 25px; }
+  .post_tile.blog .photo,
+  .post_tile.blog_photo .photo {
+    max-height: 180px;
+    overflow: hidden; }
+  .post_tile.blog .photo img,
+  .post_tile.blog_photo .photo img {
+    display: block;
+    width: 335px; }
+  .post_tile.blog footer,
+  .post_tile.blog_photo footer {
+    border-radius: 0 0 3px 3px; }
+  .post_tile.blog .share svg,
+  .post_tile.blog_photo .share svg {
+    height: 1.2em;
+    width: 1.2em; }
+
+.post_tile.post_photo .photo img {
+  display: block;
+  width: 335px; }
+.post_tile.post_photo .view_message {
+  bottom: 40px;
+  color: white;
+  height: 1.5em;
+  padding: 15px;
+  position: absolute;
+  right: 0px;
+  width: 1.5em; }
+  .post_tile.post_photo .view_message svg {
+    fill: white;
+    height: 100%;
+    width: 100%; }
+.post_tile.post_photo .message {
+  bottom: 40px;
+  display: none;
+  left: 0;
+  position: absolute; }
+
+.post_tile .hidden {
+  display: none; }
+
+.loading {
+  bottom: 12px;
+  color: #B3B3B3;
+  display: none;
+  font-size: 18px;
+  position: fixed;
+  right: 12px;
+  text-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2); }
+
+/*# sourceMappingURL=jquery_social_widget.css.map */
