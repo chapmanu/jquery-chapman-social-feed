@@ -1,31 +1,16 @@
-/**
- * TODO LIST
- *   LAYOUTS
- *     [check] Layout the existing posts into the columns (with/without annimation)
- *     [check] Re-layout the posts when the page re-sizes
- *
- *   INFINATE SCROLL
- *     [check] Fetch new data from the server
- *     [check] Relayout page, keep user where they are
- *     [check] Change the fetching to use kaminari pages instead of max id and min id
- *
- *   ON NEW POST/DELETE POST
- *     Fire an event that will show any new posts that have come in.
- *     Fire an event that removes the new tag from posts
- *     Add the new posts to the feed with animation.
- */
-
-
 ChapmanSocialFeed = function(options) {
-  this.url              = this.parseUrl(options.url);
-  this.$container       = options.$container;
-  this.post_width       = options.post_width   || 355;
-  this.gutter_width     = options.gutter_width || 20;
-  this.max_columns      = options.max_columns  || 4;
-  this.animation_queue  = [];
-  this.page             = 2;
-  this.before           = this.currentTimeAsParam();
-  this.currently_loading  = false;
+  this.url               = this.parseUrl(options.url);
+  this.$container        = options.$container;
+  this.post_width        = options.post_width   || 355;
+  this.gutter_width      = options.gutter_width || 20;
+  this.max_columns       = options.max_columns  || 4;
+  this.animation_queue   = [];
+  this.currently_loading = false;
+  this.load_more_params  = {
+    page:   options.page  || 1,
+    per:    options.per   || 30,
+    before: this.currentTimeAsParam()
+  }
   this.selectors = {
     posts: '.post_tile',
     columns: '.column',
@@ -41,8 +26,9 @@ ChapmanSocialFeed.prototype.initialize = function() {
   if (this.$container.children().length == 0) {
     this.$container.html(this.createNewColumns());
     this.loadMore();
-  } else {
+  } else { // The first page of social posts has already been loaded
     this.layoutPostsInColumns({animate: true});
+    this.load_more_params.page += 1;
   }
 };
 
@@ -109,14 +95,6 @@ ChapmanSocialFeed.prototype.appendPostToShortestColumn = function($post, $column
 };
 
 ChapmanSocialFeed.prototype.prependPosts = function ($posts) {
-  // Check for duplicates
-  // var $existing_posts = this.$container.find(this.selectors.posts);
-  // var ids = {};
-  // $existing_posts.each(function() { ids[$(this).prop('id')] = true; } );
-
-  // $posts = $posts.filter(function() { return !ids[$(this).prop('id')]; });
-
-
   $posts.each(function() { $(this).prepend('<span class="new_ribbon">NEW</span>'); });
   $posts.css('opacity', 0);
   this.addToAnimationQueue($posts);
@@ -178,19 +156,21 @@ ChapmanSocialFeed.prototype.loadMore = function() {
   $.ajax({
     url: this.url,
     method: 'get',
-    data: {page: self.page, before: self.before},
-    crossDomain: true
-  }).success(function(posts) {
-    var $posts = $(posts);
-    $posts.css('opacity', 0);
-    this.addToAnimationQueue($posts);
-    this.appendPosts($posts);
-    this.attachPostListeners($posts);
-    this.animatePosts();
-    this.page += 1;
-    this.currently_loading = false;
-  }.bind(this)).fail(function(){
-    alert('fail');
+    data: self.load_more_params,
+    crossDomain: true,
+    success: function(posts) {
+      var $posts = $(posts);
+      $posts.css('opacity', 0);
+      self.addToAnimationQueue($posts);
+      self.appendPosts($posts);
+      self.attachPostListeners($posts);
+      self.animatePosts();
+      self.load_more_params.page += 1;
+      self.currently_loading = false;
+    },
+    error: function() {
+      console.log("Error loading most posts");
+    }
   });
 };
 
@@ -209,10 +189,6 @@ ChapmanSocialFeed.prototype.parseUrl = function(url) {
   parser.pathname += 'feed';
   return parser.href;
 }
-
-
-
-
 
 /***********************************************************************************
  * Event listener functions
@@ -233,7 +209,7 @@ ChapmanSocialFeed.prototype.onResize = function(e) {
 
 $.fn.chapmanSocialFeed = function(options) {
   var self = this;
-  feed = new ChapmanSocialFeed($.extend(options, {$container: this}));
+  var feed = new ChapmanSocialFeed($.extend(options, {$container: this}));
   feed.initialize();
   return this;
 };
