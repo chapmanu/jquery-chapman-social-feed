@@ -21,7 +21,6 @@ ChapmanSocialFeed = function(options) {
   $(window).on('resize', this.onResize.bind(this));
 };
 
-
 ChapmanSocialFeed.prototype.initialize = function() {
   if (this.$container.children().length == 0) {
     this.$container.html(this.createNewColumns());
@@ -73,9 +72,9 @@ ChapmanSocialFeed.prototype.detectNumberOfColumns = function() {
 };
 
 ChapmanSocialFeed.prototype.createNewColumns = function() {
-  var column_divs    = [];
+  var column_divs = '';
   for (var i = 0; i < this.detectNumberOfColumns(); ++i) {
-    column_divs[i] = $('<div class="column" id="social-feed-column-'+i+'"/>');
+    column_divs += '<div class="column" id="social-feed-column-'+i+'"/>';
   }
   return column_divs;
 };
@@ -95,12 +94,23 @@ ChapmanSocialFeed.prototype.appendPostToShortestColumn = function($post, $column
 };
 
 ChapmanSocialFeed.prototype.prependPosts = function ($posts) {
-  $posts.each(function() { $(this).prepend('<span class="new_ribbon">NEW</span>'); });
-  $posts.css('opacity', 0);
-  this.addToAnimationQueue($posts);
-  $all_posts = this.$container.find(this.selectors.posts).add($posts);
-  this.layoutPostsInColumns({$posts: $all_posts});
+  var self = this
+  $posts.each(function() { self.prependPost($(this)); });
+  this.layoutPostsInColumns();
   this.animatePosts({reverse: true});
+};
+
+ChapmanSocialFeed.prototype.prependPost = function($post) {
+  $post.prepend('<span class="new_ribbon">NEW</span>');
+  var $dup = $("#"+$post[0].id);
+  if ($dup.length > 0) {
+    $dup.html($post.html());
+  } else {
+    $post.css('opacity', 0);
+    this.addToAnimationQueue($post);
+    this.$container.prepend($post);
+  }
+  this.$container.trigger('new_post_added', [$post]);
 };
 
 ChapmanSocialFeed.prototype.attachPostListeners = function($posts) {
@@ -167,6 +177,7 @@ ChapmanSocialFeed.prototype.loadMore = function() {
       self.animatePosts();
       self.load_more_params.page += 1;
       self.currently_loading = false;
+      self.$container.trigger('more_posts_added', [$posts]);
     },
     error: function() {
       console.log("Error loading most posts");
