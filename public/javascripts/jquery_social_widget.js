@@ -65,10 +65,15 @@ ChapmanSocialFeed.prototype.sortPosts = function($posts) {
 
 ChapmanSocialFeed.prototype.detectNumberOfColumns = function() {
   var calculated =  Math.floor(this.$container.width() /  this.post_width);
-  if (calculated <= this.max_columns)
+  if (calculated < 1){
+    return 1;
+  }
+  else if (calculated <= this.max_columns){
     return calculated
-  else
+  }
+  else {
     return this.max_columns;
+  }
 };
 
 ChapmanSocialFeed.prototype.createNewColumns = function() {
@@ -76,7 +81,7 @@ ChapmanSocialFeed.prototype.createNewColumns = function() {
   for (var i = 0; i < this.detectNumberOfColumns(); ++i) {
     column_divs += '<div class="column" id="social-feed-column-'+i+'"/>';
   }
-  return column_divs;
+  return $(column_divs);
 };
 
 ChapmanSocialFeed.prototype.appendPosts = function($posts) {
