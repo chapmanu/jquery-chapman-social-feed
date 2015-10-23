@@ -1,46 +1,106 @@
+/***********************************************************************
+* CONSTRUCTOR
+*/
+
 ChapmanSocialFeed = function(options) {
-  this.url               = this.parseUrl(options.url);
-  this.$container        = options.$container;
-  this.post_width        = options.post_width   || 355;
-  this.gutter_width      = options.gutter_width || 20;
-  this.max_columns       = options.max_columns  || 4;
-  this.animation_queue   = [];
-  this.currently_loading = false;
+  if (!options) var options = {};
+  this.url                  = options.url || 'https://social.chapman.edu';
+  this.load_more_url        = this.loadMoreUrl();
+  this.$element             = options.$element;
+  this.post_width           = options.post_width          || 355;
+  this.gutter_width         = options.gutter_width        || 20;
+  this.max_columns          = options.max_columns         || 4;
+  this.infinate_scroll      = options.infinate_scroll     || false;
+  this.realtime             = options.realtime            || false;
+  this.realtime_server_url  = options.realtime_server_url || 'https://social.chapman.edu:8000/faye';
+  this.realtimePostReceive  = options.realtimePostReceive || this.defaultRealtimePostReceive;
+  this.realtimePostRemove   = options.realtimePostRemove  || this.defaultRealtimePostRemove;
+  this.infinate_scroll      = options.infinate_scroll     || false;
   this.load_more_params  = {
     page:   options.page  || 1,
     per:    options.per   || 30,
     before: this.currentTimeAsParam()
-  }
+  };
   this.selectors = {
-    posts: '.post_tile',
-    columns: '.column',
+    posts:       '.post_tile',
+    columns:     '.column',
     new_ribbons: '.new_ribbon'
   };
-
-  this.resize_timer = null;
-  $(window).on('resize', this.onResize.bind(this));
+  this.state = {
+    currently_loading: false
+  };
+  this.animation_queue = [];
+  this.resize_timer    = null;
 };
 
+
+
+/***********************************************************************
+* INITIALIZERS
+*/
+
 ChapmanSocialFeed.prototype.initialize = function() {
-  if (this.$container.children().length == 0) {
-    this.$container.html(this.createNewColumns());
+  this.initializePosts();
+  this.initializeRealtime();
+  $(window).on('resize', this.onResize.bind(this));
+  this.$element.trigger('csf:initialized');
+};
+
+ChapmanSocialFeed.prototype.initializePosts = function() {
+  if (this.$element.children().length == 0) { // No posts
+    this.$element.html(this.createNewColumns());
     this.loadMore();
-  } else { // The first page of social posts has already been loaded
+  } else { // Already have 1st page
     this.layoutPostsInColumns({animate: true});
     this.load_more_params.page += 1;
   }
 };
 
+ChapmanSocialFeed.prototype.initializeRealtime = function() {
+  if (!this.realtime) return;
+  this.$element.trigger('csf:realtime_connecting')
+  var realtime = new Faye.Client(this.realtime_server_url);
+  var self = this;
+  realtime.on('transport:up', function() { self.$element.trigger('csf:realtime_connected') });
+  realtime.subscribe(self.realtimeSubscriptionChannel(), self.__realtimePostReceive.bind(self));
+  realtime.subscribe('/social/remove', self.__realtimePostRemove.bind(self));
+};
 
 
 
 /***********************************************************************
- * Functions for laying out the posts into columns
+ * REALTIME
+ */
+
+ChapmanSocialFeed.prototype.__realtimePostReceive = function(post) {
+  this.realtimePostReceive(post);
+  this.$element.trigger('csf:realtime_post_received', [post]);
+};
+
+ChapmanSocialFeed.prototype.__realtimePostRemove = function(id) {
+  this.realtimePostRemove(id);
+  this.$element.trigger('csf:realtime_post_removed', [id]);
+};
+
+ChapmanSocialFeed.prototype.defaultRealtimePostReceive = function(post) {
+  var $post = $(post);
+  var $dup = $('#'+$post[0].id);
+  if ($dup.length === 0) this.prependPosts($post);
+};
+
+ChapmanSocialFeed.prototype.defaultRealtimePostRemove = function(id) {
+  $('#'+id).remove();
+};
+
+
+
+/***********************************************************************
+ * LAYOUT
  */
 
 ChapmanSocialFeed.prototype.layoutPostsInColumns = function(options) {
   var use_animation   = (options && options.animate);
-  var $posts          = (options && options.$posts) ? options.$posts : this.$container.find(this.selectors.posts);
+  var $posts          = (options && options.$posts) ? options.$posts : this.$element.find(this.selectors.posts);
   var scroll_position = $(window).scrollTop();
 
   this.sortPosts($posts);
@@ -48,32 +108,12 @@ ChapmanSocialFeed.prototype.layoutPostsInColumns = function(options) {
     $posts.css('opacity', 0);
     this.addToAnimationQueue($posts);
   }
-  this.$container.html(this.createNewColumns());
+  this.$element.html(this.createNewColumns());
   this.appendPosts($posts);
-  this.attachPostListeners($posts);
   if (use_animation) {
     this.animatePosts();
   }
   $(window).scrollTop(scroll_position);
-};
-
-ChapmanSocialFeed.prototype.sortPosts = function($posts) {
-  $posts.sort(function(a, b) {
-    return new Date($(b).data('timestamp')) - new Date($(a).data('timestamp'));
-  });
-};
-
-ChapmanSocialFeed.prototype.detectNumberOfColumns = function() {
-  var calculated =  Math.floor(this.$container.width() /  this.post_width);
-  if (calculated < 1){
-    return 1;
-  }
-  else if (calculated <= this.max_columns){
-    return calculated
-  }
-  else {
-    return this.max_columns;
-  }
 };
 
 ChapmanSocialFeed.prototype.createNewColumns = function() {
@@ -84,8 +124,21 @@ ChapmanSocialFeed.prototype.createNewColumns = function() {
   return $(column_divs);
 };
 
+ChapmanSocialFeed.prototype.detectNumberOfColumns = function() {
+  var calculated =  Math.floor(this.$element.width() /  this.post_width);
+  if      (calculated < 1)                 return 1;
+  else if (calculated <= this.max_columns) return calculated;
+  else                                     return this.max_columns;
+};
+
+ChapmanSocialFeed.prototype.sortPosts = function($posts) {
+  $posts.sort(function(a, b) {
+    return new Date($(b).data('timestamp')) - new Date($(a).data('timestamp'));
+  });
+};
+
 ChapmanSocialFeed.prototype.appendPosts = function($posts) {
-  var $columns = this.$container.find(this.selectors.columns);
+  var $columns = this.$element.find(this.selectors.columns);
   var self = this;
   $posts.each(function() {
     self.appendPostToShortestColumn($(this), $columns);
@@ -96,6 +149,8 @@ ChapmanSocialFeed.prototype.appendPostToShortestColumn = function($post, $column
   var column_heights = $.map($columns, function(col) { return $(col).height(); });
   var min_index = column_heights.indexOf(Math.min.apply(Math, column_heights));
   $columns.eq(min_index).append($post);
+  this.attachPostListeners($post);
+  this.$element.trigger('csf:post_appended', [$post]);
 };
 
 ChapmanSocialFeed.prototype.prependPosts = function ($posts) {
@@ -113,13 +168,14 @@ ChapmanSocialFeed.prototype.prependPost = function($post) {
   } else {
     $post.css('opacity', 0);
     this.addToAnimationQueue($post);
-    this.$container.prepend($post);
+    this.$element.prepend($post);
   }
-  this.$container.trigger('new_post_added', [$post]);
+  this.$element.trigger('csf:post_prepended', [$post]);
 };
 
 ChapmanSocialFeed.prototype.attachPostListeners = function($posts) {
   $posts.each(function(){
+    $(this).find('time').timeago();
     if ($(this).hasClass('post_photo')) {
       $(this).find('.view_message').on('mouseenter', function(e){
         $(this).siblings('.message').stop().slideDown(200);
@@ -131,6 +187,7 @@ ChapmanSocialFeed.prototype.attachPostListeners = function($posts) {
         $(this).children('.message').stop().slideUp(400);
       });
     }
+    $(this).data('listeners_attached', true);
   });
 };
 
@@ -159,17 +216,17 @@ ChapmanSocialFeed.prototype.removeNewRibbons = function() {
 
 
 
-
 /************************************************************************************
- * Functions for loading more posts from the server
+ * LOAD MORE
  */
 
 ChapmanSocialFeed.prototype.loadMore = function() {
-  if (this.currently_loading) return 'Already Requested';
-  this.currently_loading = true;
+  if (this.state.currently_loading) return 'Already Requested';
+  this.state.currently_loading = true;
+  this.$element.trigger('csf:load_more_started', [this.load_more_url, this.load_more_params]);
   var self = this;
   $.ajax({
-    url: this.url,
+    url: self.load_more_url,
     method: 'get',
     data: self.load_more_params,
     crossDomain: true,
@@ -178,14 +235,13 @@ ChapmanSocialFeed.prototype.loadMore = function() {
       $posts.css('opacity', 0);
       self.addToAnimationQueue($posts);
       self.appendPosts($posts);
-      self.attachPostListeners($posts);
       self.animatePosts();
       self.load_more_params.page += 1;
-      self.currently_loading = false;
-      self.$container.trigger('more_posts_added', [$posts]);
+      self.state.currently_loading = false;
+      self.$element.trigger('csf:load_more_success', [$posts]);
     },
-    error: function() {
-      console.log("Error loading most posts");
+    error: function(e) {
+      self.$element.trigger('csf:load_more_error', e);
     }
   });
 };
@@ -195,19 +251,23 @@ ChapmanSocialFeed.prototype.currentTimeAsParam = function() {
   return [now.getFullYear(), now.getMonth()+1, now.getDate(), now.getHours().toString() + now.getMinutes().toString()].join("-")
 }
 
-
-/**
-  * Converts the url passed in, into the url that we will make our ajax reqest to.
-  */
-ChapmanSocialFeed.prototype.parseUrl = function(url) {
+ChapmanSocialFeed.prototype.loadMoreUrl = function() {
   var parser  = document.createElement('a');
-  parser.href = url;
+  parser.href = this.url;
   parser.pathname += 'feed';
   return parser.href;
-}
+};
+
+ChapmanSocialFeed.prototype.realtimeSubscriptionChannel =  function() {
+  var parser  = document.createElement('a');
+  parser.href = this.url;
+  return '/social' + parser.pathname.replace(/\/$/, '');
+};
+
+
 
 /***********************************************************************************
- * Event listener functions
+ * LISTENERS
  */
 
 ChapmanSocialFeed.prototype.onResize = function(e) {
@@ -219,13 +279,13 @@ ChapmanSocialFeed.prototype.onResize = function(e) {
 };
 
 
+
 /***********************************************************************************
- * The jQuery Function
+ * JQUERY PLUGIN
  */
 
 $.fn.chapmanSocialFeed = function(options) {
-  var self = this;
-  var feed = new ChapmanSocialFeed($.extend(options, {$container: this}));
-  feed.initialize();
+  this.csf = new ChapmanSocialFeed($.extend(options, {$element: this}));
+  this.csf.initialize();
   return this;
 };
