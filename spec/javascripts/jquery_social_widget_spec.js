@@ -123,6 +123,8 @@ describe("Realtime functions", function() {
 
 /*
   That infinate scroll works
+
+  Documentation on how to use the thing
 */
 
 /*

@@ -102,7 +102,6 @@ ChapmanSocialFeed.prototype.layoutPostsInColumns = function(options) {
   var use_animation   = (options && options.animate);
   var $posts          = (options && options.$posts) ? options.$posts : this.$element.find(this.selectors.posts);
   var scroll_position = $(window).scrollTop();
-
   this.sortPosts($posts);
   if (use_animation) {
     $posts.css('opacity', 0);
