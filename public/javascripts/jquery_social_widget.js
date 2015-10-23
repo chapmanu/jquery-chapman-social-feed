@@ -69,32 +69,6 @@ ChapmanSocialFeed.prototype.initializeRealtime = function() {
 
 
 /***********************************************************************
- * REALTIME
- */
-
-ChapmanSocialFeed.prototype.__realtimePostReceive = function(post) {
-  this.realtimePostReceive(post);
-  this.$element.trigger('csf:realtime_post_received', [post]);
-};
-
-ChapmanSocialFeed.prototype.__realtimePostRemove = function(id) {
-  this.realtimePostRemove(id);
-  this.$element.trigger('csf:realtime_post_removed', [id]);
-};
-
-ChapmanSocialFeed.prototype.defaultRealtimePostReceive = function(post) {
-  var $post = $(post);
-  var $dup = $('#'+$post[0].id);
-  if ($dup.length === 0) this.prependPosts($post);
-};
-
-ChapmanSocialFeed.prototype.defaultRealtimePostRemove = function(id) {
-  $('#'+id).remove();
-};
-
-
-
-/***********************************************************************
  * LAYOUT
  */
 
@@ -261,6 +235,32 @@ ChapmanSocialFeed.prototype.realtimeSubscriptionChannel =  function() {
   var parser  = document.createElement('a');
   parser.href = this.url;
   return '/social' + parser.pathname.replace(/\/$/, '');
+};
+
+
+
+/***********************************************************************
+ * REALTIME
+ */
+
+ChapmanSocialFeed.prototype.__realtimePostReceive = function(post) {
+  this.realtimePostReceive(post);
+  this.$element.trigger('csf:realtime_post_received', [post]);
+};
+
+ChapmanSocialFeed.prototype.__realtimePostRemove = function(id) {
+  this.realtimePostRemove(id);
+  this.$element.trigger('csf:realtime_post_removed', [id]);
+};
+
+ChapmanSocialFeed.prototype.defaultRealtimePostReceive = function(post) {
+  var $post = $(post);
+  var $dup = $('#'+$post[0].id);
+  if ($dup.length === 0) this.prependPosts($post);
+};
+
+ChapmanSocialFeed.prototype.defaultRealtimePostRemove = function(id) {
+  $('#'+id).remove();
 };
 
 

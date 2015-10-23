@@ -96,12 +96,16 @@ describe("Realtime functions", function() {
   });
 
   it("removes a post", function(done) {
+    var self = this;
+    this.$el.on('csf:realtime_post_received', function() {
+      expect($('.post_tile').length).toBe(31);
+      self.$el.csf.__realtimePostRemove('the-realtime-post');
+    });
     this.$el.on('csf:realtime_post_removed', function(event, id) {
       expect($('.post_tile').length).toBe(30);
       done();
     });
     this.$el.csf.__realtimePostReceive(readFixtures('realtime_post.html'));
-    this.$el.csf.__realtimePostRemove('124290');
   });
 
   it("does not add duplicate posts", function(done) {
@@ -122,9 +126,13 @@ describe("Realtime functions", function() {
 
 
 /*
+
+  That new posts are live streamed in
+
+  That proper events get fired when stuff happens
+
   That infinate scroll works
 
-  Documentation on how to use the thing
 */
 
 /*
