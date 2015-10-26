@@ -10,12 +10,12 @@ ChapmanSocialFeed = function(options) {
   this.post_width           = options.post_width          || 355;
   this.gutter_width         = options.gutter_width        || 20;
   this.max_columns          = options.max_columns         || 4;
-  this.infinate_scroll      = options.infinate_scroll     || false;
+  this.infinite_scroll      = options.infinite_scroll     || false;
   this.realtime             = options.realtime            || false;
   this.realtime_server_url  = options.realtime_server_url || 'https://social.chapman.edu:8000/faye';
   this.realtimePostReceive  = options.realtimePostReceive || this.defaultRealtimePostReceive;
   this.realtimePostRemove   = options.realtimePostRemove  || this.defaultRealtimePostRemove;
-  this.infinate_scroll      = options.infinate_scroll     || false;
+  this.infinite_scroll      = options.infinite_scroll     || false;
   this.load_more_params  = {
     page:   options.page  || 1,
     per:    options.per   || 30,

@@ -79,6 +79,10 @@ describe("Appending Posts", function() {
   });
 });
 
+// describe("Infinite Scroll", function() {
+//   beforeAll()
+// });
+
 describe("Realtime functions", function() {
   beforeEach(function(done) {
     loadFixtures('element.html');
@@ -131,7 +135,7 @@ describe("Realtime functions", function() {
 
   That proper events get fired when stuff happens
 
-  That infinate scroll works
+  That infinite scroll works
 
 */
 
