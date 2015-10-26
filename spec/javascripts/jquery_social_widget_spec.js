@@ -79,9 +79,23 @@ describe("Appending Posts", function() {
   });
 });
 
-// describe("Infinite Scroll", function() {
-//   beforeAll()
-// });
+describe("Infinite Scroll", function() {
+  beforeEach(function(done) {
+    loadFixtures('element.html');
+    this.$el = $("#chapman-social-feed");
+    this.$el.on('csf:load_more_success', function() { done(); });
+    this.$el.chapmanSocialFeed({per: 30, realtime: true});
+  });
+
+  it("loads more when page bottom is reached", function(done) {
+    $("html, body").scrollTop($(document).height());
+    var self = this;
+    this.$el.on('csf:load_more_success', function(event) { 
+      expect(self.$el.find('.post_tile').length).toBe(60);
+      done();
+    });
+  });
+});
 
 describe("Realtime functions", function() {
   beforeEach(function(done) {

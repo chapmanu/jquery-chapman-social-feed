@@ -287,12 +287,12 @@ ChapmanSocialFeed.prototype.onWindowScroll = function() {
   this.throttle();
 };
 
-ChapmanSocialFeed.prototype.nearBottomOfPage = function(length) {
+ChapmanSocialFeed.prototype.nearBottomOfPage = function() {
   return $(window).scrollTop() + 1750 >= $(document).height();
 };
 
 ChapmanSocialFeed.prototype.throttle = function() {
-  if(this.nearBottomOfPage(3) && Date.now() - this.scroll_last_fired >= 500){
+  if(this.nearBottomOfPage() && Date.now() - this.scroll_last_fired >= 500){
     this.loadMore();
     this.scroll_last_fired = Date.now();
   }
