@@ -17,6 +17,10 @@ $tile_width: 335px;
   -ms-overflow-style:none;
 }
 
+.clearfix {
+  overflow: auto;
+}
+
 @media screen and (min-width: 900px) {
   #content {
     margin-top: 0;
