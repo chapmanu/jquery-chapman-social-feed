@@ -4,19 +4,21 @@
 
 ChapmanSocialFeed = function(options) {
   if (!options) var options = {};
-  this.url                  = options.url || 'https://social.chapman.edu';
-  this.load_more_url        = this.loadMoreUrl();
-  this.$element             = options.$element;
-  this.post_width           = options.post_width          || 355;
-  this.gutter_width         = options.gutter_width        || 20;
-  this.max_columns          = options.max_columns         || 4;
-  this.infinite_scroll      = options.infinite_scroll     || false;
-  this.realtime             = options.realtime            || false;
-  this.realtime_server_url  = options.realtime_server_url || 'https://social.chapman.edu:8000/faye';
-  this.realtimePostReceive  = options.realtimePostReceive || this.defaultRealtimePostReceive;
-  this.realtimePostRemove   = options.realtimePostRemove  || this.defaultRealtimePostRemove;
-  this.infinite_scroll      = options.infinite_scroll     || false;
-  this.scroll_last_fired    = options.scroll_last_fired   || 0;
+
+  this.$element                      = options.$element;
+  this.url                           = options.url                           || 'https://social.chapman.edu';
+  this.load_more_url                 = options.load_more_url                 || this.loadMoreUrl();
+  this.post_width                    = options.post_width                    || 355;
+  this.gutter_width                  = options.gutter_width                  || 20;
+  this.max_columns                   = options.max_columns                   || 4;
+  this.realtime                      = options.realtime                      || false;
+  this.realtime_server_url           = options.realtime_server_url           || 'https://social.chapman.edu:8000/faye';
+  this.realtime_subscription_channel = options.realtime_subscription_channel || this.realtimeSubscriptionChannel();
+  this.realtimePostReceive           = options.realtimePostReceive           || this.defaultRealtimePostReceive;
+  this.realtimePostRemove            = options.realtimePostRemove            || this.defaultRealtimePostRemove;
+  this.infinite_scroll               = options.infinite_scroll               || false;
+  this.scroll_last_fired             = options.scroll_last_fired             || 0;
+
   this.load_more_params  = {
     page:   options.page  || 1,
     per:    options.per   || 30,
@@ -64,7 +66,7 @@ ChapmanSocialFeed.prototype.initializeRealtime = function() {
   var realtime = new Faye.Client(this.realtime_server_url);
   var self = this;
   realtime.on('transport:up', function() { self.$element.trigger('csf:realtime_connected') });
-  realtime.subscribe(self.realtimeSubscriptionChannel(), self.__realtimePostReceive.bind(self));
+  realtime.subscribe(self.realtime_subscription_channel, self.__realtimePostReceive.bind(self));
   realtime.subscribe('/social/remove', self.__realtimePostRemove.bind(self));
 };
 
@@ -309,5 +311,7 @@ ChapmanSocialFeed.prototype.throttle = function() {
 $.fn.chapmanSocialFeed = function(options) {
   this.csf = new ChapmanSocialFeed($.extend(options, {$element: this}));
   this.csf.initialize();
+  this.appendPosts  = this.csf.appendPosts.bind(this.csf);
+  this.prependPosts = this.csf.prependPosts.bind(this.csf);
   return this;
 };
