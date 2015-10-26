@@ -288,7 +288,7 @@ ChapmanSocialFeed.prototype.onWindowScroll = function() {
 };
 
 ChapmanSocialFeed.prototype.nearBottomOfPage = function(length) {
-  return $(window).scrollTop() + 1000 >= $(document).height();
+  return $(window).scrollTop() + 1500 >= $(document).height();
 };
 
 ChapmanSocialFeed.prototype.throttle = function() {
