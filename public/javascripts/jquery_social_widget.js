@@ -202,7 +202,7 @@ ChapmanSocialFeed.prototype.loadMore = function() {
   this.state.currently_loading = true;
   this.$element.trigger('csf:load_more_started', [this.load_more_url, this.load_more_params]);
   var self = this;
-  // console.log(self.load_more_params);
+
   $.ajax({
     url: self.load_more_url,
     method: 'get',
@@ -212,8 +212,6 @@ ChapmanSocialFeed.prototype.loadMore = function() {
       var $posts = $(posts);
       $posts.css('opacity', 0);
       self.addToAnimationQueue($posts);
-      console.log(self.load_more_params);
-      console.log($posts.length);
       self.appendPosts($posts);
       self.animatePosts();
       self.load_more_params.page += 1;
@@ -286,24 +284,21 @@ ChapmanSocialFeed.prototype.onResize = function(e) {
 
 ChapmanSocialFeed.prototype.onWindowScroll = function() {
   if ($('.post_tile').length === 0) return;
-
-  // console.log("Am I at the bottom? " + this.nearBottomOfPage(3));
   this.throttle();
 };
 
 ChapmanSocialFeed.prototype.nearBottomOfPage = function(length) {
   return $(window).scrollTop() + 1000 >= $(document).height();
-  // return $(window).scrollTop() + (length * $(window).height()) >= $(document).height();
-  // return !($(window).scrollTop() + $(window).height() == $(document).height());
 };
 
 ChapmanSocialFeed.prototype.throttle = function() {
-  if(this.nearBottomOfPage(3) && Date.now() - this.scroll_last_fired >= 1000){
-    console.log(Date.now() - this.scroll_last_fired);
+  if(this.nearBottomOfPage(3) && Date.now() - this.scroll_last_fired >= 500){
     this.loadMore();
     this.scroll_last_fired = Date.now();
   }
 };
+
+
 /***********************************************************************************
  * JQUERY PLUGIN
  */
