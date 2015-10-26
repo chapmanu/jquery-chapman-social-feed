@@ -37,7 +37,6 @@ ChapmanSocialFeed = function(options) {
 };
 
 
-
 /***********************************************************************
 * INITIALIZERS
 */
@@ -69,7 +68,6 @@ ChapmanSocialFeed.prototype.initializeRealtime = function() {
   realtime.subscribe(self.realtime_subscription_channel, self.__realtimePostReceive.bind(self));
   realtime.subscribe('/social/remove', self.__realtimePostRemove.bind(self));
 };
-
 
 
 /***********************************************************************
@@ -192,7 +190,6 @@ ChapmanSocialFeed.prototype.removeNewRibbons = function() {
 };
 
 
-
 /************************************************************************************
  * LOAD MORE
  */
@@ -243,7 +240,6 @@ ChapmanSocialFeed.prototype.realtimeSubscriptionChannel =  function() {
 };
 
 
-
 /***********************************************************************
  * REALTIME
  */
@@ -269,7 +265,6 @@ ChapmanSocialFeed.prototype.defaultRealtimePostRemove = function(id) {
 };
 
 
-
 /***********************************************************************************
  * LISTENERS
  */
@@ -292,9 +287,10 @@ ChapmanSocialFeed.prototype.nearBottomOfPage = function() {
 };
 
 ChapmanSocialFeed.prototype.throttle = function() {
-  if(this.nearBottomOfPage() && Date.now() - this.scroll_last_fired >= 500){
+  var time = new Date().getTime();
+  if(this.nearBottomOfPage() && time - this.scroll_last_fired >= 500){
     this.loadMore();
-    this.scroll_last_fired = Date.now();
+    this.scroll_last_fired = time;
   }
 };
 
